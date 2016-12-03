@@ -70,23 +70,65 @@ end
 
 %%
 s1 = de2bi(value2,N);
-tmp1 = state_track(s_id,:);
+tmp = state_track(s_id,:);
 n1 = length(s_id);
 record = cell(n1,1);
 for i = 1:n1
-   tmp2 = tmp1{i,2};
-   b = find(tmp2>33);
-   record{i} = tmp2(b);
+   tmp = tmp{i,2};
+   b = find(tmp>33);
+   record{i} = tmp(b);
 end
 
 %%
 load('s_id.mat'); % load the trajectory results
 
+
+%%
+id_vec = [];
+load('state_value_special.mat');
+[v,idx] = max(s_id(:,end));
+b = find(s_id(:,end)>2); 
+serial = s_id(b,1);
+state_special = state_track(serial,2);
+state_traj_special = state_track(serial,1);
+
+id = 1;
+n1 = length(serial);
+threshold = 10;
+for id = 1:n1
+base = 34;
+ss1 = state_special{id};
+st1 = state_traj_special{id}; 
+b1 = find(ss1(base:end,2)>0); %how many cell types occur
+state1 = value2a(b1+base-1);
+n1 = length(state1);
+state_special_occur = cell(n1,1);
+% if state1(1)~=2039
+%     continue;
+% end
+for k=1:n1
+   b2 = find(st1==state1(k));
+   state_special_occur{k} = b2; % where the cell type occur
+   if state1(k)~=2039 && b2(end)>threshold
+       id_vec = [id_vec;serial(id)];
+   end
+%    if k>1 && b2(end)>state_special_occur{1}(1)
+%        id_vec = [id_vec; serial(id)];
+%    end
+end
+% if state1(k)==2039&&size(state1,1)>2
+%    
+% end
+
+end
+
 %%
 num = length(state_track);
 M = 2^11;
 trans_vec = cell(num,2);
-for i = 1:num
+% serial1 = serial(1);
+serial1 = 37985; %(21017,21201,35531,37985)
+for i = serial1:serial1
    % trace = trans_mtx{i};
    if mod(i,1000)==0
        fprintf('%d\n',i);
@@ -96,8 +138,8 @@ for i = 1:num
        continue;
    end
    num2 = size(v1,1);
-   [v2,ia,ic] = unique(v1,'stable');
-   n1 = size(v2,1);
+   [state_value,ia,ic] = unique(v1,'stable');
+   n1 = size(state_value,1);
    trans2 = zeros(n1);
    trans1 = [ic(1:end-1) ic(2:end)];
    idx = n1*(ic(2:end)-1)+ic(1:end-1);  % n1*(j-1)+i
@@ -109,6 +151,37 @@ for i = 1:num
    end
    trans2(v3) = cnt;
    trans_vec{i,1} = trans2;
-   trans_vec{i,2} = v2;
+   trans_vec{i,2} = state_value;
 end
 
+
+
+%% 
+%match the state_value to value2a, mark the state_value with index
+%in value2a if state_value(i) equals to value2a(j)
+
+tmp = [];
+for i = 1: length(state_value);
+    for j = 1:43;
+        if state_value(i) == value2a(j)
+            tmp(i) = j;
+
+        end
+    end
+end
+
+index_update = [state_value, tmp'];
+length(index_update) == length(state_value)
+%save('steady_state_21017.mat','trans2','index_update')
+save('trans_37985.mat','trans2')
+
+%%
+num1 = [21017,21201,35531,37985];
+n1 = length(num1);
+for i = 1:n1
+   num1(i)
+   filename1 = sprintf('steady_state_%d.mat',num1(i));
+   filename2 = sprintf('transition_%d.txt',num1(i));
+   load(filename1);
+   dlmwrite(filename2,trans2,'delimiter','\t');
+end
