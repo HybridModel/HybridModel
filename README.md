@@ -1,11 +1,11 @@
 # HybridModel
-A hybrid model of the gene regulatory network of the HSPCs (hematopoietic stem and progenitor cells).
+A hybrid model of the gene regulatory network of the HSPCs (hematopoietic stem and progenitor cells), aimed at studying the regulatory mechanism central to the haematopoiesis system..
 
 ## hybrid.m
 Matlab code for running hybrid model. 
 
 ## hybrid_split.m
-Matlab code for running hybrid model. Split results into multiple file.
+Matlab code for running hybrid model. Split results into multiple files.
 
 ## boolean_Run.m
 Matlab code for running binary model.
